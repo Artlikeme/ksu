@@ -1,0 +1,37 @@
+{% extends "main/default.html" %}
+
+{% load static %}
+
+{% block title %}Зарегестрироваться{% endblock %}
+
+{% block nav %}
+
+
+{% endblock %}
+
+{% block content %}
+
+
+<!--Register-->
+<div class="form">
+  <div class="form-panel_reg one">
+    <div class="form-header">
+      <h1>Зарегестрировать аккаунт</h1>
+    </div>
+    <div class="form-content">
+      <form method="POST">
+        {% csrf_token %}
+        <div class="form-group"><label for="username">Имя аккаунта</label>{{ register_form.username }}</div>
+        <div class="form-group"><label for="password">Пароль</label>{{ register_form.password1 }}</div>
+        <div class="form-group"><label for="cpassword">Повторите пароль</label>{{ register_form.password2 }}</div>
+        <div class="form-group"><label for="email">Ваш Email</label>{{ register_form.email }}</div>
+        <div class="form-group"><button type="submit">Зарегестрироваться</button></div>
+      </form>
+      <p class="text-center mt-3"><a href="{% url 'login' %}">Уже есть аккаунт?</a>.</p>
+    </div>
+  </div>
+</div>
+ 
+
+
+{% endblock %}

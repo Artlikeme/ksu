@@ -1,0 +1,42 @@
+{% extends "main/default.html" %}
+{% load static %}
+{% load auth_extras %}
+{% block title %}Moderations{% endblock %}
+
+
+
+{% block content %}    
+  
+{% if request.user|has_group:"moder" %}
+<!-- Form-->
+<div class="form">
+  <div class="form-toggle"></div>
+  <div class="form-panel one align-items-center">
+    <h1 class="form-header d-flexr">Hello, moder  {{ request.user.username  }}</h1>
+
+      <div class="form-header d-flex">
+        <a href="{% url 'moderation_owners' %}" type="button" class="btn btn-primary me-2 mb-4">Модерация заявок владельцев</a>
+        <a href="{% url 'moderation_items' %}" type="button" class="btn btn-primary me-2 mb-4">Модерация заявок объектов</a>
+      </div>
+
+  </div>
+</div>
+{% else %}
+    <div class="form">
+        <div class="form-toggle"></div>
+        <div class="form-panel one">
+            <div class="form-header">
+                <h1>{{ request.user.first_name }} sorry, <br> but you are not moder.</h1>
+                <div>
+                    <p style="display: inline-block; ">You can become the owner</p>
+                    <a href="{% url 'home' %}" type="button" class="btn btn-outline-dark me-2 mb-4">Вернуться</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+
+
+
+{% endblock %}

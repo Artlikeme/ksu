@@ -1,0 +1,30 @@
+{% extends 'main/default.html' %}
+{% block title %} Новости на сайте {% endblock %}
+
+{% block content %}
+   <div class="features">
+        <h1 style="color:black">Новости на сайте</h1>
+        {% if user.username == 'admin' %}
+        <a type="button" class="btn btn-sm btn-outline-dark" href="{% url 'create' %}"">Добавить новую новость</a>
+        {% endif %}
+
+        {% if news %}
+        <div class="box overflow-auto">
+            {% for el in news %}
+            <div class="card mt-3" style="width: 79rem;">
+                <div class="card-body">
+                    <h3 style="color:black">{{el.title}}</h3>
+                    <p class="text-muted">Дата публикации: {{ el.date }}</p>
+                    <p class="card-text">{{el.anons}}</p>
+                    <a href="{% url 'news-detail' el.id %}" class="card-link">Смотреть</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p>У вас нет записей!</p>
+        {% endif %}
+
+   </div>
+
+{% endblock %}

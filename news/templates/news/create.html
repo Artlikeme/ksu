@@ -1,0 +1,21 @@
+{% extends 'main/default.html' %}
+{% block title %} Форма для добавления статьи {% endblock %}
+
+{% block content %}
+{% if user.username == 'admin' %}
+   <div class="features">
+       <h1>Форма для добавления статьи</h1>
+       <form method="post">
+           {% csrf_token %}
+
+           {{ form.title }}<br>
+           {{ form.anons }}<br>
+           {{ form.full_text }}<br>
+           {{ form.city }}<br>
+
+           <span>{{ error }}</span>
+           <button class="btn btn-success mt-3" type="submit">Добавить статью</button>
+       </form>
+   </div>
+{% endif %}
+{% endblock %}

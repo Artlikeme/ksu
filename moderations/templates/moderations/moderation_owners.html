@@ -1,0 +1,55 @@
+{% extends "main/default.html" %}
+
+{% load auth_extras %}
+
+{% load static %}
+
+{% block title %}Personal cabinet{% endblock %}
+
+
+{% block content %}
+
+
+<!--Table-->
+    <div class="container">
+      <div class="row my-4">
+        <div>
+      
+            <span class="h2 mb-4 ">Активных заявок:({{ count }})</span>
+            <a href="{% url 'moderation_items' %}" type="button" class="btn btn-primary me-2 mb-4">Модерация объектов</a>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 ">
+              {% if item.active == False %}
+              <div class="col">
+                <div class="card shadow-sm">
+          
+                  <div class="card-body">
+                    <h1 class="card-title">{{ item.name_organisation }}</h1>
+                    <p class="card-text">{{ item.text_questionnaire }}</p>
+                    <p>{{ item.user_owner }}</p>
+                    <p>{{ item.user_owner.email }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <form action="" method="post">
+                        {% csrf_token %}
+                        {{ form }}
+                        <button type="submit" class="btn btn-sm btn-primary">Одобрить</button>
+                    </form>
+                    </div>
+                    
+                    
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+              
+            </div>
+          
+          </div>
+          
+      </div>
+    
+    </div>
+
+
+
+<!-- modal -->
+{% endblock %}

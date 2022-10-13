@@ -1,0 +1,207 @@
+{% extends "main/default.html" %}
+
+{% load auth_extras %}
+
+{% load static %}
+
+{% block title %}Personal cabinet{% endblock %}
+
+
+{% block content %}
+
+
+<!--Table-->
+<div class="container">
+  <div class="row my-4">
+    <div class="col-md-9">
+      <div class="card">
+        <div class="card-header text-white header-bg">
+          <span class="h4">Аккаунт</span>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+
+              <span class="h4"></span>
+              <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modal">
+                Редактировать
+              </button>
+              <a href="{% url 'news_home' %}" type="button" class="btn btn-sm btn-outline-dark">
+                Новости
+              </a>
+              {% if user.username == 'admin' %}<a class="btn btn-sm btn-outline-dark" href="/admin">Admin Panel</a>{% endif %}
+              <hr>
+              <!-- Table -->
+              <table class="table bg-white table-borderless">
+                <tbody>
+                  <tr>
+                    <th scope="row">ФИО</th>
+                    <td>{% if user_p.fio %}{{ user_p.fio }}{% else %}Введите ваше фио{% endif %}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">UserName</th>
+                    <td>{{ user.username }}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Email</th>
+                    <td>{{ user.email }}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Телефон</th>
+                    <td>{% if user_p.phone_num %}{{ user_p.phone_num }}{% else %}Введите ваше номер телефона {% endif %}</td>
+                  </tr>
+                </tbody>
+
+              </table>
+              <a href="{% url 'logout' %}" type="button" class="btn btn-outline-dark me-2">Выйти</a>
+
+            </div>
+            <div class="col-md-4">
+              <div class="border" style="width: 250px;
+                height: 250px;
+                background-image: url('{% if user_p.photo %}{{ user_p.photo.url }}{% endif %}');
+                background-size: cover;
+                border-radius: 10px;
+                box-shadow: 5px 5px 10px rgb(178, 178, 178);
+                background-position: center;">
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3" >
+      <div class="card-header text-white header-bg h5">Последние коммментарии</div>
+        <div class="card-body" style="border:1px solid rgba(0,0,0,.125);border-top:0;border-radius: 5px; padding-bottom: 10px;">
+          {% if comments %}
+          {% for com in comments %}
+            <div class="col-lg-12">
+                <div class="card mb-3" style="max-width: 18rem;width: 100%;">
+                    <div class="card-body">
+                      <div class="align-middle d-flex justify-content-between">
+                        <div class="">{{ com.value }}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                          <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                        </svg> 
+                        </div>
+                        <a href="{% url 'itemview' com.item.id %}">Перейти</a>
+                      </div>
+                      <p class="card-text">{{ com.description|truncatechars:45 }}</p>
+                    </div>
+                  </div>
+            </div>
+          {% endfor %}
+          {% else %}
+        <div style="text-align: center;">Вы еще не оставили ни одного комментария</div>
+  
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Cards -->
+
+<div>
+  {% if request.user|has_group:"owner" %} 
+  
+  <span class="h2 me-5" style="color:black">Ваши объекты</span>
+  <a href="{% url 'additem' %}" type="button" class="btn btn-outline-dark me-2 mb-4">Добавить новый объект</a>
+  <!-- button for admin -->
+  {% if request.user|has_group:"moder" %} 
+  <a href="{% url 'moderation' %}" type="button" class="btn btn-primary me-2 mb-4">Модерация</a>
+  {% endif %}
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 ">
+
+    {% for item in items %}
+    {% if item.active %}
+    <div class="col">
+      <div class="card shadow-sm">
+        <div class="image_item" style="
+                                    min-width: 350px;
+                                    height: 200px;
+                                    background-image: url('{% if item.item_image %}{{ item.item_image.url }}{% else %}Фото не может загрузиться{% endif %}');
+                                    background-size: cover;
+                                    background-repeat: no-repeat;"></div>
+        <!-- <img class="image_item"  src="{% if item.item_image %}{{ item.item_image.url }}{% endif %}" alt="oargugh"> -->
+
+        <div class="card-body">
+          <h1 class="card-title" style="color:black">{{ item.item_title }}</h1>
+          <p class="card-text">{{ item.item_description|truncatechars:150 }}</p>
+          <p class="card-text">{{ item.item_address }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group" >
+              <a href="{% url 'itemview' item.id %}" type="button" class="btn btn-sm btn-outline-secondary" style="color:black">Посмотреть</a>
+              <a href="{% url 'itemupdate' item.id %}" type="button" class="btn btn-sm btn-outline-secondary" style="color:black">Ред-ть</a>
+            </div>
+            <a href="{% url 'itemudelete' item.id %}" type="button" class="btn btn-sm btn-outline-secondary" style="color:black">Удалить</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+
+    <div class="col">
+      <div class="card shadow-sm">
+        <!-- <img src="{% if item.item_image %}{{ item.item_image.url }}{% endif %}" alt="oargugh"> -->
+
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <p>На проверке в модерации...</p>
+          </div>
+          <h1 class="card-title">{{ item.item_title }}</h1>
+          <p class="card-text">{{ item.item_description|truncatechars:150 }}</p>
+          <p class="card-text">{{ item.item_address }}</p>
+
+        </div>
+      </div>
+    </div>
+
+    {% endif %}
+
+    {% endfor %}
+  </div>
+  {% else %}
+  <a href="{% url 'becomeowner' %}" type="button" class="btn btn-primary me-2 mb-4">Подать заявку на становление владельцем</a>
+  {% if request.user|has_group:"moder" %} 
+  <a href="{% url 'moderation' %}" type="button" class="btn btn-primary me-2 mb-4">Модерация</a>
+  {% endif %}
+  {% endif %}
+
+</div>
+
+<!-- modal for change UserProfile -->
+<div class="modal" tabindex="-1" id="modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Редактировать профиль</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% if user_p.photo %}<img class="img img-thumbnail" style="max-width: 300px;max-height:300px;" src="{{ user_p.photo.url }}" alt="" target="_blank">{% endif %}
+          {{ form.as_p }}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+
+      </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+
+<!-- modal -->
+
+{% endblock %}

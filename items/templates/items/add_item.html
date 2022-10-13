@@ -1,0 +1,61 @@
+{% extends "main/default.html" %}
+{% load static %}
+{% load auth_extras %}
+{% block title %}Add new item{% endblock %}
+
+
+
+{% block content %}    
+  
+{% if request.user|has_group:"owner" %}
+<!-- Form-->
+<div class="form">
+  <div class="form-toggle"></div>
+  <div class="form-panel one">
+      <div class="form-header">
+          <h1>Добавление новый объект</h1>
+      </div>
+
+      <div class="form-content">
+         
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group"><label for="username">Название</label>{{ form.item_title }}</div>
+            <div class="form-group"><label for="username">Описание</label>{{ form.item_description }}</div>
+            <div class="form-group"><label for="username">Адрес</label>{{ form.item_address }}</div>
+            <div class="form-group"><label for="username">Ссылка на  адрес(Yandex, Google)</label>{{ form.item_address_link }}</div>
+            <div class="form-group"><label for="username">MapCode(Yandex).<br>Например: CCUJvUubkA.Смотреть инструкцию</label>{{ form.item_mapcode }}</div>
+            <div class="form-group"><label for="username">Категория</label>{{ form.category }}</div>
+            <div class="form-group"><label for="username">Выберите город</label>{{ form.city }}</div>
+            <div class="form-group"><label for="username">Фото</label>{{ form.item_image }}</div>
+            <div class="form-group"><button type="submit" >Отправить</button></div>
+            
+        </form>
+
+        </div>
+      
+      
+        <!-- <div class="form-content">
+            <p class="text-center"> You are not now logged</p>
+        </div> -->
+  </div>
+</div>
+{% else %}
+    <div class="form">
+        <div class="form-toggle"></div>
+        <div class="form-panel one">
+            <div class="form-header">
+                <h1>{{ request.user.first_name }} sorry, <br> but you cant add items.</h1>
+                <div>
+                    <p style="display: inline-block; ">You can become the owner</p>
+                    <a href="{% url 'lk' %}" type="button" class="btn btn-outline-dark me-2 mb-4">Become the owner</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+
+
+
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "main/default.html" %}
+
+{% load auth_extras %}
+
+{% load static %}
+
+{% block title %}Personal cabinet{% endblock %}
+
+
+{% block content %}
+<div class="form">
+    <div class="form-toggle"></div>
+    <div class="form-panel one">
+        <div class="form-header">
+            <h1>Анкета</h1>
+        </div>
+        <div class="form-content">
+          <form method="POST">
+              {% csrf_token %}
+              <div class="form-group"><label for="username">НАзвание организации</label>{{ form.name_organisation }}</div>
+              <div class="form-group"><label for="password">Текс анкеты</label>{{ form.text_questionnaire }}</div>
+              <div class="form-group"><button type="submit" id="liveToastBtn">Отправить</button></div>
+          </form>
+      </div>
+    </div>
+  </div>
+  
+{% endblock %}

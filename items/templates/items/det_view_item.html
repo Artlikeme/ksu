@@ -1,0 +1,630 @@
+{% extends "main/default.html" %}
+{% load auth_extras %}
+{% load static %}
+{% block title %}{{ itemview.item_title }} - DetailView{% endblock %}
+
+
+
+{% block content %}
+<style>
+  body {font-family: Arial;}
+  
+  /* Style the tab */
+  .tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+
+    border-radius: 15px;
+  }
+  
+  /* Style the buttons inside the tab */
+  .tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+    border-radius: 15px;
+  }
+  
+  /* Change background color of buttons on hover */
+  .tab button:hover {
+    background-color: #ddd;
+  }
+  
+  /* Create an active/current tablink class */
+  .tab button.active {
+    background-color: #4285f4;
+    color: white;
+  }
+  
+  /* Style the tab content */
+  .tabcontent {
+    margin-top: 10px;
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    /* border-top: none; */
+    border-radius: 15px;
+  }
+  
+  /* Style the close button */
+  .topright {
+    float: right;
+    cursor: pointer;
+    font-size: 28px;
+  }
+  
+  .topright:hover {color: red;}
+
+  .form_windows input {
+    width: 45px;
+    border-radius: 5px;
+    border:1px solid #111;
+  }
+  </style>
+
+{% if itemview.active or request.user|has_group:"moder"%}     
+<div class="row featurette">
+    <div class="col-md-7">
+      <h2 class="featurette-heading" style="color:black">{{ itemview.item_title }}</h2>
+      <p class="lead" style="color:black;font-style: italic;">Категория: {{ itemview.category }}</p>
+      <p class="lead mt-3" ><a style="color: black;" href="{{ itemview.item_address_link }}" target="_blank" ><span class="text-muted" >{{ itemview.item_address }}</span></a></p>
+      
+      
+      <p class="lead">{% if itemview.rating  != 0 %}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+      </svg> {{ itemview.rating }} ({{ comment.count }}){% endif %}</p>
+
+      <div class="tab">
+        <button class="tablinks" onclick="openCity(event, 'description')" id="defaultOpen">Описание</button>
+        <button class="tablinks" onclick="openCity(event, 'map')">Карта</button>
+        <button class="tablinks" onclick="openCity(event, 'more')" >Подробнее</button>
+        <button class="tablinks" onclick="openCity(event, 'rasp')">Расписание</button>
+        <button class="tablinks" onclick="openCity(event, 'rewievs')">Добавить отзыв</button>
+      </div>
+      
+      <div id="description" class="tabcontent">
+        <p class="lead">{{ itemview.item_description }}</p>
+        
+      </div>
+      
+      <div id="map" class="tabcontent">
+        <div style="position:relative;overflow:hidden;"><iframe style="border-radius: 10px;" src="https://yandex.ru/map-widget/v1/-/{{ itemview.item_mapcode }}" width="720" height="410" frameborder="1" allowfullscreen="true" style="position:relative;"></iframe></div>
+      </div>
+      
+    <div id="more" class="tabcontent">
+              <!-- продуктоввая корзина -->
+      {% if itemview.category.name == "Магазины" %}
+      {% if itemview.author == user %}
+      <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modal-foodbasket" style="color:black">
+          Редактировать
+      </button>
+      {% endif %}
+      {% if res == 0 %} <p class="lead">Продуктовая корзина еще не добавлена!</p> 
+      {% else %}
+      <h5 class="lead mb-4" style="color: rgb(69, 69, 69);font-weight: 400;margin: 0;" style="color:black">Сумма продуктовой корзины: {{ res }} руб.</h5>
+
+      <form action="" method="get">
+        <div class="d-flex" style="justify-content: space-between;width: 250px;">
+          <p class="align-middle" >Хлеб: {{ foodbasket.bread }} руб.(шт.) </p>
+          <span class="form_windows" style="justify-content: space-between;">{{ FormCalculate.first }}</span>
+        </div>
+        <div class="d-flex" style="justify-content: space-between;width: 250px;">
+          <p class="align-middle" >Молоко: {{ foodbasket.milk }} руб.(литр) </p>
+          <span class="form_windows" style="justify-content: space-between;">{{ FormCalculate.second }}</span>
+        </div>
+        <div class="d-flex" style="justify-content: space-between;width: 250px;">
+          <p class="align-middle" >Картошка: {{ foodbasket.potato }} руб.(1 кг.) </p>
+          <span class="form_windows" style="justify-content: space-between;">{{ FormCalculate.third }}</span>
+        </div>
+        <div class="d-flex" style="justify-content: space-between;width: 250px;">
+          <p class="align-middle" >Мясо: {{ foodbasket.meat }} руб.(1 кг.) </p>
+          <span class="form_windows" style="justify-content: space-between;">{{ FormCalculate.fourth }}</span>
+        </div>
+        <div class="d-flex" style="justify-content: space-between;width: 250px;">
+          <p class="align-middle" >Яйца: {{ foodbasket.eags }} руб.(10 шт.) </p>
+          <span class="form_windows" style="justify-content: space-between;">{{ FormCalculate.fifth }}</span>
+        </div>
+        <div class="d-flex" style="justify-content: space-between;width: 250px;">
+          <p class="align-middle" >Масло: {{ foodbasket.oil }} руб.(200 гр.) </p>
+          <span class="form_windows" style="justify-content: space-between;">{{ FormCalculate.sixth }}</span>
+        </div>
+        <div style="display: flex;justify-content: space-between;width:450px;align-items: center;">
+        <div class="d-flex" style="justify-content: space-between;width: 250px;">
+          <p class="align-middle mb-0" >Сахар: {{ foodbasket.sugar }} руб(1 кг.) </p>
+          <span class="form_windows" style="justify-content: space-between;">{{ FormCalculate.seventh }}</span>
+        </div>
+        <button class="btn btn-primary" type="submit">Посчитать корзину</button>
+        </div>
+        
+      </form>
+      {% endif %}
+      {% endif %}
+
+
+       <!-- мед учреждения -->
+       {% if itemview.category.name == "Медицинские учреждения" %}
+       {% if itemview.author == user %}
+       <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modal-medprices" style="color:black">
+           Редактировать
+       </button>
+       {% endif %}
+       {% if medprices  == 0%} <p class="lead">Цены на услуги еще не добавлены!</p> 
+       {% else %}
+       <p class="lead" style="color: rgb(69, 69, 69);font-weight: 400;margin: 0;" style="color:black">Подробно про стоимости услуг</p>
+       <p class="align-middle mt-3">Прием(ср.стоимость): {{ medprices.priem }} руб.</p>
+       <p class="align-middle ">COVID-19(стоимость): {{ medprices.covid }} руб.</p>
+       <p class="align-middle ">Диагностические исследования(ср.стоимость): {{ medprices.lab_analiz }} руб.</p>
+       <p class="align-middle ">Диагностические исследования(ср.срок): {{ medprices.days_analiz }} дней</p>
+       <p class="align-middle ">Проведение КТ, ПЭТ_КТ, МРТ: {{ medprices.mrt }} руб.</p>
+       <p class="align-middle ">Проведение КТ, ПЭТ_КТ, МРТ(срок выдачи результатов): {{ medprices.days_mrt }} дней</p>
+       {% endif %}
+       {% endif %}
+
+       <!-- парки -->
+       {% if itemview.category.name == "Парки" %}
+       {% if itemview.author == user %}
+       <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modal-parkivents" style="color:black">
+           Редактировать
+       </button>
+       {% endif %}
+       {% if parkivents  == 0%} <p class="lead">Информация о парках не добавлена!</p> 
+       {% else %}
+       <p class="lead" style="color: rgb(69, 69, 69);font-weight: 400;margin: 0;" style="color:black">Подробно про стоимости услуг</p>
+       <p class="align-middle mt-4">Событий в год: {{ parkivents.ivents_year }} шт.</p>
+       <p class="align-middle ">Площадь: {{ parkivents.square }} кв.км</p>
+       <p class="align-middle ">Посещаемость: {{ parkivents.people_day }} чел. в день</p>
+       <p class="align-middle ">Кафе и ресторанов: {{ parkivents.cafes }} шт.</p>
+       <p class="align-middle ">Ср. стоимость атракционов, автоматов и т.д.: {{ parkivents.prices }} руб.</p>
+       {% endif %}
+       {% endif %}
+
+      <!-- детские сады -->
+      {% if itemview.category.name == "Детские сады" %}
+      {% if itemview.author == user %}
+      <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modal-kindsgardens" style="color:black">
+          Редактировать
+      </button>
+      {% endif %}
+      {% if kindsgardens  == 0%} <p class="lead">Информация о детском саде не добавлена!</p> 
+      {% else %}
+      <p class="lead" style="color: rgb(69, 69, 69);font-weight: 400;margin: 0;" style="color:black">Подробно про детский сад</p>
+      <p class="align-middle mt-4">Прием с {{ kindsgardens.start_year }} лет.</p>
+      <p class="align-middle ">Колличество мест: {{ kindsgardens.number_of_seats }} шт.</p>
+      <p class="align-middle ">Колличество групп: {{ kindsgardens.ammounts_group }} гр.</p>
+      <p class="align-middle ">Воспитателей в группе: {{ kindsgardens.ammounts_group_teather }} чел.</p>
+      <p class="align-middle ">Количество выходных в год: {{ kindsgardens.ammont_holidays }} дней</p>
+      <p class="align-middle ">Цена в месяц: {{ kindsgardens.prices_month }} руб.</p>
+      {% endif %}
+      {% endif %}
+
+
+      <!-- школы -->
+      {% if itemview.category.name == "Школы" %}
+      {% if itemview.author == user %}
+      <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modal-schollRate" style="color:black">
+          Редактировать
+      </button>
+      {% endif %}
+      {% if schollRate  == 0%} <p class="lead">Информация о школе не добавлена!</p> 
+      {% else %}
+      <p class="lead" style="color: rgb(69, 69, 69);font-weight: 400;margin: 0;" style="color:black">Подробно про школу</p>
+        <div class="accordion accordion-flush" style="background-color: #fcfcfc" id="accordionFlushExample">
+          <p class="align-middle mt-4">Средний балл ЕГЭ выпускников: {{ schollRate.ege }} лет.</p>
+          <p class="align-middle ">Колличество мест: {{ schollRate.number_of_seats }} шт.</p>
+          <p class="align-middle ">Колличество классов: {{ schollRate.ammount_class }} гр.</p>
+          <p class="align-middle ">Колличество учителей: {{ schollRate.ammounts_teather }} гр.</p>
+          <p class="align-middle ">Количество выходных в год: {{ schollRate.ammont_holidays }} чел.</p>
+          <p class="align-middle ">Рейтинг школы по городу: {{ schollRate.rating_city }} дней</p>
+          <p class="align-middle ">Цена в месяц: {{ schollRate.prices_month }} руб.</p>
+      {% endif %}
+      {% endif %}
+
+
+      <!-- универ -->
+      {% if itemview.category.name == "Университеты" %}
+      {% if itemview.author == user %}
+      <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modal-schollRate" style="color:black">
+          Редактировать
+      </button>
+      {% endif %}
+      {% if universityrate  == 0%} <p class="lead">Информация о университете не добавлена!</p> 
+      {% else %}
+      <p class="lead" style="color: rgb(69, 69, 69);font-weight: 400;margin: 0;" style="color:black">Подробно про университет</p>
+      <p class="align-middle mt-4">Средний балл ЕГЭ поступающих: {{ universityrate.ege_sr }} баллов</p>
+      <p class="align-middle ">Колличество мест: {{ universityrate.number_of_seats }} мест.</p>
+      <p class="align-middle ">Колличество факультетов: {{ universityrate.facultets }} шт.</p>
+      <p class="align-middle ">Колличество бюджетных мест: {{ universityrate.ammounts_budget }} шт.</p>
+      <p class="align-middle ">Процент трудоустройства выпускников по специальности: {{ universityrate.procent_trud }} %</p>
+      <p class="align-middle ">Рейтинг школы по городу: {{ universityrate.rating_city }} место</p>
+      <p class="align-middle ">Рейтинг школы по России: {{ universityrate.rating_russia }} место</p>
+      <p class="align-middle ">Средняя стоимость семестра: {{ universityrate.prices_month_sr }} руб.</p>
+      {% endif %}
+      {% endif %}
+      
+    </div>
+    
+
+    <div id="rewievs" class="tabcontent">
+        {% if user.is_authenticated and itemview.author != request.user %}
+          <!-- <h2 class="pb-2 border-bottom" style="color:black">Добавить комментарий</h2> -->
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form_com_width">
+              <div class="form-group"><label for="description">Комментарий</label>{{ form.description }}</div>
+              <div class="form-group"><label for="value">Ваша оценка</label>{{ form.value }}</div>
+              <div class="form-group mb-4"><label for="value">Добавьте фото</label>{{ form.image }}</div>
+            </div>
+            <button class="btn btn-primary" type="submit">Отправить</button>
+          </form>
+        {% else %}
+          <div class="d-flex align-items-center justify-content-center">
+            <p class="lead">Войдите чтобы оставлять отзыв</p>
+          </div>
+          
+        {% endif %}
+
+    </div>
+
+    <div id="rasp" class="tabcontent">
+        {% if itemview.author == request.user %}
+      <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modal">
+        Задать часы работы
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modal-holiday">
+        Установить нерабочий день
+      </button>
+      {% endif %}
+      <div style="font-size: large;">
+        {% if hours %}
+          <h3 style="color:black;margin-top: 10px;">Рассписание:</h3>
+          {% for i in hours %}
+            <!-- тут щас будет колхоз -->
+            <div>
+              {% if i.weekday == 1 %}
+                {{ 'Пн. ' }}
+              {% elif i.weekday == 2 %}
+                {{ 'Вт.' }}
+              {% elif i.weekday == 3 %}
+                {{ 'Ср.' }}
+              {% elif i.weekday == 4 %}
+              {{ 'Чт.' }}
+              {% elif i.weekday == 5 %}
+                {{ 'Пт.' }}
+              {% elif i.weekday == 6 %}
+                {{ 'Сб.' }}
+              {% else %}
+                {{ 'Вс.' }}
+              {% endif %}
+              <!-- колхоз окончен( -->
+              {{ i.hours }}
+            </div>
+          {% endfor %}
+        {% else %}
+          Рассписание не добавлено
+        {% endif %}
+
+        {% if holidays %}
+          <p style="color:black;font-size: large;margin-top:10px">Близжайщий выходной: {{ counter_specialdays|date:'d-m-Y' }}</p>
+           
+        {% endif %}
+      </div>
+    </div>
+    
+  </div>
+
+<!-- карусель photos -->
+    <div class="col-md-5">
+      <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <div class="border" style="min-width: 400px;
+              height: 400px;
+              background-image: url('{% if itemview.item_image %}{{ itemview.item_image.url }}{% endif %}');
+              background-size: cover;
+              border-radius: 10px;">
+              </div>
+          </div>
+          
+          {% for com in comment %}
+          {% if com.image %}
+          <div class="carousel-item">
+
+            <div class="border" style="min-width: 400px;
+              height: 400px;
+              background-image: url('{% if com.image %}{{ com.image.url }}{% endif %}');
+              background-size: cover;
+              border-radius: 10px;">
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}
+          
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+
+      <p  style="margin-top: 10px;">Владелец: {{ author_item }}</p>
+    </div>
+
+    <!-- rewiews -->
+    <div class="container px-4 py-5" id="featured-3">
+      
+     
+      {% if itemview.rating != 0%}
+      <h2 class="p-1 mt-5 mb-5 border-bottom">Отзывы</h2>
+      {% else %}
+        <h2 class="p-1 mt-4" style="color:black">Комментариев нет.Стань первым!</h2>
+        <p>Оставляя комментарий вы поможете другим посетителям лучше узнать об этом месте, спасибо!</p>
+      {% endif %}
+
+
+      <div class="container">
+        <div class="row">
+          {% for com in comment %}
+            <div class="col-lg-3">
+                <div class="card mb-3" style="max-width: 18rem;width: 100%;">
+                    <div class="card-header"> Комментарий {{ com.name }}</div>
+                    <div class="card-body">
+                      <div class="align-middle">
+                        {{ com.value }}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                          <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                        </svg> 
+                      </div>
+                      <p class="card-text">{{ com.description }}</p>
+                      {% if com.image %}
+                      <img id="myImg" src="{% if com.image %}{{ com.image.url }}{% endif %}" class="img-thumbnail m-1" style="width: 50px; height: 50px;" alt=""> 
+                      {% endif %}
+                    </div>
+                  </div>
+            </div>
+          {% endfor %}
+        </div>
+    </div>
+      {% else %}
+      <div class="form">
+        <div class="form-toggle"></div>
+          <div class="form-panel one ">
+              <div class="form-header d-flex align-items-center">
+                <h1>{{ itemview.item_title }} в модерации <br>
+                Пожалуйста, подождите немного!</h1>
+              </div>
+          </div>
+        </div>
+      </div>
+</div>
+{% endif %}
+  
+    
+
+<!-- modal for change hours -->
+<div class="modal" tabindex="-1" id="modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Отредактировать часы работы по дням</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post">
+          {% csrf_token %}
+          {{ form_hours.as_p }}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Добавить</button>
+
+      </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+<!-- modal for change holidays -->
+<div class="modal" tabindex="-1" id="modal-holiday">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Добавить выходной</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post">
+          <p>Дата в формате 2000-11-21-(год-месяц-день)</p>
+          {% csrf_token %}
+          {{ form_holidays.as_p }}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Добавить</button>
+
+      </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+<!-- modal for change foodbasket -->
+<div class="modal" tabindex="-1" id="modal-foodbasket">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Редактировать</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post">
+          <p>Введите в формате цена в рублях по порядку(Хлеб(белый 1 шт),Картошка(1 кг),Сахар(1кг  белый),Молоко(1 литр 2.5%),Яйца(10 шт.),Мясо(курица 1кг.),Масло(1 л.)</p>
+          {% csrf_token %}
+          {{ form_foodbasket.as_p }}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+
+      </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- modal for medpries -->
+<div class="modal" tabindex="-1" id="modal-medprices">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Редактировать</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post">
+          {% csrf_token %}
+          {{ form_medprices.as_p }}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+
+      </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" id="modal-parkivents">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Редактировать</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post">
+          {% csrf_token %}
+          {{ form_parkivents.as_p }}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+
+      </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="modal" tabindex="-1" id="modal-kindsgardens">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Редактировать</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post">
+          {% csrf_token %}
+          {{ form_kindsgardens.as_p }}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+
+      </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="modal" tabindex="-1" id="modal-schollRate">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Редактировать продуктовую корзину</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post">
+          {% csrf_token %}
+          {{ form_schollRate.as_p }}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+
+      </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" id="modal-universityrate">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Редактировать продуктовую корзину</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" method="post">
+          {% csrf_token %}
+          {{ form_universityrate.as_p }}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+
+      </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+  function openCity(evt, cityName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.className += " active";
+  }
+  
+  // Get the element with id="defaultOpen" and click on it
+  document.getElementById("defaultOpen").click();
+  </script>
+{% endblock %}

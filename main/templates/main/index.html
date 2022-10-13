@@ -1,0 +1,73 @@
+{% extends "main/default.html" %}
+{% load static %}
+
+{% block title %}Native Enviroment{% endblock %}
+
+
+{% block content %}
+<section class=" pt-md-11 page">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-5" >
+            <h2 class="mb-3"><a class="news_article_1" href="{% url 'news_home' %}">Новости:</a></h2>
+            {% if article %}
+                <div class="box" style="height: 670px; width: 470px; ">
+                    {% for el in article %}
+                    <div class="card mt-3" style="width:28rem;">
+                        <div class="card-body">
+                            <h3 style="color:black">{{el.title}}</h3>
+                            <p class="text-muted" style="font-style: italic;">Дата публикации: {{ el.date }}</p>
+                            <p class="card-text">{{el.anons}}</p>
+                            <a href="{% url 'news-detail' el.id %}" class="card-link">Смотреть</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    <p>У вас нет записей!</p>
+                {% endif %}
+            </div>
+
+            <!-- второй блок с объектами -->
+            <div class="col-sm-7 itembox">
+                <h2 class="main_title mb-3">Найди нужный объект прямо сейчас!</h2>
+
+                <div class="select_item">
+                    <form method='GET'>
+                        <p style="display:inline-block; margin-right: 2rem; margin-bottom:0;color:black">Выбрать категорию:</p>
+                        {{ form.dropbox }}
+                        <button class="btn btn-primary btn-ml-50" type="submit">Поиск</button>
+                    </form>
+
+                </div>
+
+                <div class="wraper">
+                    {% for item in catitem %}
+                        {% if item.active %}
+                            <div class="card shadow-sm">
+                                <div class="image_item" style="
+                                    min-width: 350px;
+                                    background-image: url('{% if item.item_image %}{{ item.item_image.url }}{% else %}Фото не может загрузиться{% endif %}');
+                                    background-size: cover;
+                                    background-repeat: no-repeat;"></div>
+                                <div class="card-body">
+                                    <h1 class="card-title"><a href="{% url 'itemview' item.id %}" style="color:black">{{ item.item_title }}</a></h1>
+                                    {% if item.comments.count != 0 %}
+                                        <h6 style="color:black;font-style: italic;">Rating:{{ item.rating }} ({{ item.comments.count }})</h6>
+                                    {% else %}
+                                        <h6 style="color:black">Комментариев пока нет!</h6>
+                                    {% endif %}
+                                    <p class="card-text">{{ item.item_description|truncatechars:150 }}</p>
+                                    <p class="card-text">{{ item.item_address }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+            </div><!-- / конец второй блок с объектами -->
+
+        </div><!-- / .row -->
+    </div> <!-- / .container -->
+</section>
+{% endblock %}

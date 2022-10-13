@@ -1,0 +1,40 @@
+{% extends "main/default.html" %}
+
+{% load static %}
+
+{% block title %}Войти в аккаунт{% endblock %}
+
+
+
+{% block content %}      
+
+<!-- Form-->
+<div class="form">
+  <div class="form-toggle"></div>
+  <div class="form-panel one">
+      <div class="form-header">
+          <h1>Войти в аккаунт</h1>
+      </div>
+      {% if user.is_authenticated %}
+      <div class="form-content">
+        <p class="text-center">Вы уже вошли в аккаунт</p>
+      </div>
+      {% else %}
+      <div class="form-content">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group"><label for="username">Имя аккаунта</label>{{ login_form.username }}</div>
+            <div class="form-group"><label for="password">Пароль</label>{{ login_form.password }}</div>
+            <div class="form-group"><label class="form-remember"><input type="checkbox" />Запомнить пароль?</label><a class="form-recovery" href="{% url 'password_reset' %}">Забыли пароль?</a></div>
+            <div class="form-group"><button type="submit" id="liveToastBtn">Войти</button></div>
+        </form>
+    </div>
+      {% endif %}
+  </div>
+</div>
+
+
+
+
+
+{% endblock %}
