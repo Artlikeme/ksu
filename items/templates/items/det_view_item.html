@@ -81,9 +81,9 @@
       </svg> {{ itemview.rating }} ({{ comment.count }}){% endif %}</p>
 
       <div class="tab">
-        <button class="tablinks" onclick="openCity(event, 'description')" id="defaultOpen">Описание</button>
+        <button class="tablinks" onclick="openCity(event, 'description')" {%if fb_flag == 0 %}id='defaultOpen'{% endif %}>Описание</button>
         <button class="tablinks" onclick="openCity(event, 'map')">Карта</button>
-        <button class="tablinks" onclick="openCity(event, 'more')" >Подробнее</button>
+        <button class="tablinks" onclick="openCity(event, 'more')" {%if fb_flag == 1 %}id='defaultOpen'{% endif %}> Подробнее</button>
         <button class="tablinks" onclick="openCity(event, 'rasp')">Расписание</button>
         <button class="tablinks" onclick="openCity(event, 'rewievs')">Добавить отзыв</button>
       </div>

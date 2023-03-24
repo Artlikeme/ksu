@@ -1,5 +1,4 @@
-from django.contrib.gis.db import models
-
+from django.db import models
 from items.models import CategoryItem
   
 

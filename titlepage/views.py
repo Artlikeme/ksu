@@ -15,8 +15,8 @@ def titlepage(request):
         return redirect("home")
     else:
         if request.method == 'GET' and  City.objects.filter(id=request.GET.get('dropbox',False))[::-1] != []:
-            messages.success(request, "Для этого города еще не добавлен раздел" )
-    return render(request,'titlepage/breh.html',
+            messages.success(request, "Для этого города еще не добавлен раздел")
+    return render(request, 'titlepage/breh.html',
     context = {
         'object_list':object_list,
         'form':form,
